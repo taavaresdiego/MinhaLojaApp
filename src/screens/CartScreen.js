@@ -1,4 +1,6 @@
-import React from "react";
+// Arquivo: src/screens/CartScreen.js (Versão Final - Conectada à API de Pedidos)
+
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,21 +8,93 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
-import { useCart } from "../contexts/CartContexts";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import { useCart } from "../contexts/CartContext";
+import CartItem from "../components/CartItem";
 
-import CartItem from "../components/CarItem";
+const API_BASE_URL = "http://192.168.1.6:4000";
 
 export default function CartScreen({ navigation }) {
-  const { cartItems, getCartTotal } = useCart();
+  const { cartItems, getCartTotal, clearCart } = useCart();
 
-  const handleFinalizeOrder = () => {
-    console.log("Finalizando pedido com os itens:", cartItems);
-    console.log("Total do pedido:", getCartTotal());
-    Alert.alert(
-      "Pedido Finalizado (Simulado)",
-      `Total: R$ ${getCartTotal()}. Seu pedido foi recebido!`
-    );
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleFinalizeOrder = async () => {
+    if (cartItems.length === 0) {
+      Alert.alert(
+        "Carrinho Vazio",
+        "Adicione itens ao carrinho antes de finalizar."
+      );
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      if (!token) {
+        Alert.alert("Erro", "Você não está logado. Faça login novamente.");
+        setIsLoading(false);
+
+        return;
+      }
+
+      const payload = { items: cartItems };
+      console.log(
+        "Enviando pedido para /api/orders:",
+        JSON.stringify(payload, null, 2)
+      );
+
+      const response = await axios.post(`${API_BASE_URL}/api/orders`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("Pedido criado com sucesso:", response.data);
+      Alert.alert(
+        "Pedido Realizado!",
+        `Seu pedido #${
+          response.data.orderId
+        } foi criado com sucesso. Total: R$ ${getCartTotal()}`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              clearCart();
+              navigation.navigate("Home"); //
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao finalizar pedido:",
+        error.response?.data || error.message
+      );
+      if (error.response) {
+        const errorMessage =
+          error.response.data?.message || "Erro desconhecido.";
+        if (error.response.status === 401 || error.response.status === 403) {
+          Alert.alert(
+            "Erro de Autenticação",
+            "Sua sessão expirou. Faça login novamente."
+          );
+        } else {
+          Alert.alert(
+            "Erro ao Finalizar",
+            `Não foi possível criar seu pedido: ${errorMessage}`
+          );
+        }
+      } else {
+        Alert.alert(
+          "Erro de Conexão",
+          "Não foi possível conectar ao servidor."
+        );
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderEmptyCart = () => (
@@ -41,17 +115,24 @@ export default function CartScreen({ navigation }) {
     <View style={styles.summaryContainer}>
       <Text style={styles.totalText}>Total: R$ {getCartTotal()}</Text>
       <TouchableOpacity
-        style={styles.finalizeButton}
+        style={[
+          styles.finalizeButton,
+          isLoading ? styles.buttonDisabled : null,
+        ]}
         onPress={handleFinalizeOrder}
+        disabled={isLoading}
       >
-        <Text style={styles.finalizeButtonText}>Finalizar Pedido</Text>
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.finalizeButtonText}>Finalizar Pedido</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      {}
       {cartItems.length === 0 ? (
         renderEmptyCart()
       ) : (
@@ -59,11 +140,10 @@ export default function CartScreen({ navigation }) {
           <FlatList
             data={cartItems}
             renderItem={({ item }) => <CartItem item={item} />}
-            keyExtractor={(item) => item.product.id}
+            keyExtractor={(item) => item.product.id.toString()}
             contentContainerStyle={styles.listContentContainer}
             style={styles.list}
           />
-          {}
           {renderCartSummary()}
         </>
       )}
@@ -72,28 +152,19 @@ export default function CartScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  list: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  list: { flex: 1 },
   listContentContainer: {
     padding: 15,
+    paddingBottom: 10,
   },
-
   emptyCartContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
-  emptyCartText: {
-    fontSize: 18,
-    color: "#666",
-    marginBottom: 20,
-  },
+  emptyCartText: { fontSize: 18, color: "#666", marginBottom: 20 },
   continueShoppingButton: {
     backgroundColor: "#007bff",
     paddingVertical: 12,
@@ -105,7 +176,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-
   summaryContainer: {
     padding: 15,
     borderTopWidth: 1,
@@ -124,10 +194,8 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: "center",
+    minHeight: 50,
   },
-  finalizeButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
+  finalizeButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  buttonDisabled: { backgroundColor: "#6c757d" },
 });

@@ -7,7 +7,7 @@ import RegisterScreen from "./src/screens/RegisterScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import CartScreen from "./src/screens/CartScreen";
 
-import { CartProvider } from "./src/contexts/CartContexts";
+import { CartProvider } from "./src/contexts/CartContext";
 
 const AuthStack = createNativeStackNavigator();
 const MainStack = createNativeStackNavigator();

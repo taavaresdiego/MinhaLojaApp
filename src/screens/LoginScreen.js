@@ -11,7 +11,7 @@ import {
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const API_BASE_URL = "http://192.168.1.5:4000";
+const API_BASE_URL = "http://192.168.1.6:4000";
 
 export default function LoginScreen({ navigation, onLogin }) {
   const [email, setEmail] = useState("");

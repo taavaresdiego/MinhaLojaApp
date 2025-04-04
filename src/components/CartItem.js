@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import { useCart } from "../contexts/CartContexts";
+import { useCart } from "../contexts/CartContext";
 
 export default function CartItem({ item }) {
   const { incrementQuantity, decrementQuantity, removeFromCart } = useCart();
