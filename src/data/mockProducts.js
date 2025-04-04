@@ -1,18 +1,10 @@
-// Arquivo: src/data/mockProducts.js
-
-// Lista de produtos falsos para a Fase 1
 const mockProducts = [
   {
     id: "1",
     nome: "Produto Teste 1",
     preco: 19.99,
-    // Imagem 200x200 com ID 10 (pode mudar a cada reload)
+
     imagemUrl: "https://picsum.photos/seed/10/200",
-    // Outros campos do requisito podem ser adicionados aqui se necessário depois:
-    // precoPromocao: 15.99,
-    // tipo: 'Tipo A',
-    // descricao: 'Descrição detalhada do produto teste 1.',
-    // dataValidade: '2025-12-31',
   },
   {
     id: "2",

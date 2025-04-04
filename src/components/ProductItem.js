@@ -1,18 +1,12 @@
-// Arquivo: src/components/ProductItem.js
-
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import { useCart } from "../contexts/CartContexts"; // Importa o hook do carrinho
+import { useCart } from "../contexts/CartContexts";
 
-// Componente recebe o objeto 'product' como prop
 export default function ProductItem({ product }) {
-  // Pega a função addToCart do nosso contexto
   const { addToCart } = useCart();
 
-  // Função chamada ao clicar no botão "Adicionar"
   const handleAddToCart = () => {
-    addToCart(product); // Chama a função do contexto passando o produto atual
-    // Poderia adicionar um feedback visual aqui (ex: Alert ou animação)
+    addToCart(product);
   };
 
   return (
@@ -20,14 +14,14 @@ export default function ProductItem({ product }) {
       <Image source={{ uri: product.imagemUrl }} style={styles.image} />
       <View style={styles.infoContainer}>
         <Text style={styles.name}>{product.nome}</Text>
-        {/* Formata o preço para Reais (R$) */}
+        {}
         <Text style={styles.price}>
           R$ {product.preco.toFixed(2).replace(".", ",")}
         </Text>
       </View>
       <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
         <Text style={styles.addButtonText}>+</Text>
-        {/* Ou poderia ser um ícone de carrinho */}
+        {}
       </TouchableOpacity>
     </View>
   );
@@ -35,14 +29,14 @@ export default function ProductItem({ product }) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row", // Alinha itens lado a lado
-    alignItems: "center", // Centraliza verticalmente
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     marginBottom: 10,
     backgroundColor: "#fff",
     borderRadius: 8,
-    elevation: 2, // Sombra no Android
-    shadowColor: "#000", // Sombra no iOS
+    elevation: 2,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
@@ -54,7 +48,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   infoContainer: {
-    flex: 1, // Ocupa o espaço restante
+    flex: 1,
     justifyContent: "center",
   },
   name: {
@@ -64,14 +58,14 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 14,
-    color: "#007bff", // Azul
+    color: "#007bff",
   },
   addButton: {
     marginLeft: 10,
-    backgroundColor: "#28a745", // Verde
+    backgroundColor: "#28a745",
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 20, // Botão redondo
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
   },

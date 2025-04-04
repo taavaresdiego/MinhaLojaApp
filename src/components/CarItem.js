@@ -1,24 +1,18 @@
-// Arquivo: src/components/CartItem.js
-
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import { useCart } from "../contexts/CartContexts"; // Importa o hook do carrinho
+import { useCart } from "../contexts/CartContexts";
 
-// O componente recebe o 'item' do carrinho como prop
-// Lembrar que a estrutura do item é: { product: { id, nome, preco, ... }, quantity: X }
 export default function CartItem({ item }) {
-  // Pega as funções que precisamos do contexto do carrinho
   const { incrementQuantity, decrementQuantity, removeFromCart } = useCart();
 
-  // Simplifica o acesso ao produto dentro do item
   const product = item.product;
 
   return (
     <View style={styles.container}>
-      {/* Imagem do Produto */}
+      {}
       <Image source={{ uri: product.imagemUrl }} style={styles.image} />
 
-      {/* Informações do Produto (Nome, Preço) */}
+      {}
       <View style={styles.infoContainer}>
         <Text style={styles.name} numberOfLines={2}>
           {product.nome}
@@ -28,11 +22,11 @@ export default function CartItem({ item }) {
         </Text>
       </View>
 
-      {/* Controles de Quantidade */}
+      {}
       <View style={styles.quantityContainer}>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={() => decrementQuantity(product.id)} // Chama a função do contexto
+          onPress={() => decrementQuantity(product.id)}
         >
           <Text style={styles.quantityButtonText}>-</Text>
         </TouchableOpacity>
@@ -41,16 +35,16 @@ export default function CartItem({ item }) {
 
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={() => incrementQuantity(product.id)} // Chama a função do contexto
+          onPress={() => incrementQuantity(product.id)}
         >
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Botão Remover Item (Exemplo com 'X') */}
+      {}
       <TouchableOpacity
         style={styles.removeButton}
-        onPress={() => removeFromCart(product.id)} // Chama a função do contexto
+        onPress={() => removeFromCart(product.id)}
       >
         <Text style={styles.removeButtonText}>X</Text>
       </TouchableOpacity>
@@ -58,15 +52,14 @@ export default function CartItem({ item }) {
   );
 }
 
-// Estilos para o item do carrinho
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 10,
-    paddingHorizontal: 5, // Menor padding horizontal que o ProductItem
+    paddingHorizontal: 5,
     backgroundColor: "#fff",
-    marginBottom: 10, // Espaço entre itens do carrinho
+    marginBottom: 10,
     borderRadius: 8,
     elevation: 1,
     shadowColor: "#000",
@@ -75,31 +68,31 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
   },
   image: {
-    width: 50, // Imagem menor no carrinho
+    width: 50,
     height: 50,
     borderRadius: 5,
     marginRight: 10,
   },
   infoContainer: {
-    flex: 1, // Ocupa espaço para empurrar controles para direita
+    flex: 1,
     justifyContent: "center",
   },
   name: {
-    fontSize: 14, // Nome um pouco menor
+    fontSize: 14,
     fontWeight: "bold",
     marginBottom: 4,
   },
   price: {
-    fontSize: 13, // Preço um pouco menor
-    color: "#888", // Cinza
+    fontSize: 13,
+    color: "#888",
   },
   quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: 10, // Espaço antes e depois dos controles
+    marginHorizontal: 10,
   },
   quantityButton: {
-    backgroundColor: "#eee", // Fundo cinza claro
+    backgroundColor: "#eee",
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 4,
@@ -113,17 +106,17 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 14,
     fontWeight: "bold",
-    minWidth: 20, // Garante espaço para números
+    minWidth: 20,
     textAlign: "center",
   },
   removeButton: {
-    backgroundColor: "#dc3545", // Vermelho
-    borderRadius: 15, // Botão redondo pequeno
+    backgroundColor: "#dc3545",
+    borderRadius: 15,
     width: 24,
     height: 24,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 5, // Espaço após controles de quantidade
+    marginLeft: 5,
   },
   removeButtonText: {
     color: "#fff",

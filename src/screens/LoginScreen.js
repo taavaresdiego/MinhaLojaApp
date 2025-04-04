@@ -6,23 +6,25 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from "react-native";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+
+const API_BASE_URL = "http://192.168.1.5:4000";
 
 export default function LoginScreen({ navigation, onLogin }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-
-  // Estados de erro para Login
   const [emailError, setEmailError] = useState("");
   const [senhaError, setSenhaError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleEntrarPress = () => {
-    // 1. Limpar erros anteriores
+  const handleEntrarPress = async () => {
     setEmailError("");
     setSenhaError("");
     let isValid = true;
 
-    // 2. Validar campos obrigatórios
     if (!email.trim()) {
       setEmailError("E-mail é obrigatório.");
       isValid = false;
@@ -32,25 +34,54 @@ export default function LoginScreen({ navigation, onLogin }) {
       isValid = false;
     }
 
-    // 3. Validar formato do email (opcional, mas boa prática)
-    if (email.trim() && isValid) {
-      // Só valida formato se não estiver vazio
-      const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-      if (!emailRegex.test(email.trim())) {
-        setEmailError("Formato de e-mail inválido.");
-        isValid = false;
-      }
+    if (!isValid) {
+      return;
     }
 
-    // 4. Se válido, chama a função onLogin
-    if (isValid) {
-      console.log("Tentando logar com:", { email: email.trim(), senha });
-      onLogin(); // Chama a função passada por props (do App.js)
-    } else {
-      console.log("Formulário de login inválido. Erros:", {
-        emailError,
-        senhaError,
+    setIsLoading(true);
+
+    try {
+      console.log(
+        `Tentando login para ${email.trim()} em ${API_BASE_URL}/api/auth/login`
+      );
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+        email: email.trim(),
+        senha: senha,
       });
+
+      const { token, user } = response.data;
+      console.log(
+        "Login bem-sucedido, token:",
+        token ? "Token recebido" : "Token NÃO recebido!"
+      );
+
+      if (token) {
+        await SecureStore.setItemAsync("userToken", token);
+        console.log("Token armazenado com sucesso.");
+
+        onLogin();
+      } else {
+        throw new Error("Resposta de login inválida do servidor.");
+      }
+    } catch (error) {
+      console.error(
+        "Erro no login:",
+        error.response?.data?.message || error.message
+      );
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 400)
+      ) {
+        setEmailError(" ");
+        setSenhaError("Email ou senha inválidos.");
+      } else {
+        Alert.alert(
+          "Erro de Conexão",
+          "Não foi possível conectar ao servidor. Verifique sua rede ou tente mais tarde."
+        );
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -58,7 +89,6 @@ export default function LoginScreen({ navigation, onLogin }) {
     <View style={styles.container}>
       <Text style={styles.title}>Entrar</Text>
 
-      {/* Input Email */}
       <TextInput
         style={[styles.input, emailError ? styles.inputError : null]}
         placeholder="Seu e-mail"
@@ -68,10 +98,13 @@ export default function LoginScreen({ navigation, onLogin }) {
         autoCapitalize="none"
         autoCorrect={false}
         placeholderTextColor="#888"
+        editable={!isLoading}
       />
-      {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+      {}
+      {emailError && !senhaError ? (
+        <Text style={styles.errorText}>{emailError}</Text>
+      ) : null}
 
-      {/* Input Senha */}
       <TextInput
         style={[styles.input, senhaError ? styles.inputError : null]}
         placeholder="Sua senha"
@@ -79,26 +112,41 @@ export default function LoginScreen({ navigation, onLogin }) {
         onChangeText={setSenha}
         secureTextEntry={true}
         placeholderTextColor="#888"
+        editable={!isLoading}
       />
       {senhaError ? <Text style={styles.errorText}>{senhaError}</Text> : null}
 
-      {/* Botão Entrar */}
-      <TouchableOpacity style={styles.button} onPress={handleEntrarPress}>
-        <Text style={styles.buttonText}>Entrar</Text>
+      {}
+      <TouchableOpacity
+        style={[styles.button, isLoading ? styles.buttonDisabled : null]}
+        onPress={handleEntrarPress}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Entrar</Text>
+        )}
       </TouchableOpacity>
 
-      {/* Botão para ir para Cadastro */}
       <TouchableOpacity
         style={styles.linkButton}
         onPress={() => navigation.navigate("Register")}
+        disabled={isLoading}
       >
-        <Text style={styles.linkButtonText}>Não tem conta? Cadastre-se</Text>
+        <Text
+          style={[
+            styles.linkButtonText,
+            isLoading ? styles.linkButtonDisabled : null,
+          ]}
+        >
+          Não tem conta? Cadastre-se
+        </Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-// Estilos Atualizados (reutilizando os da tela de Registro onde possível)
 const styles = StyleSheet.create({
   container: {
     flex: 1,

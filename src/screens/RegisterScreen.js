@@ -11,21 +11,18 @@ import {
 import { cpf as cpfValidator } from "cpf";
 
 export default function RegisterScreen({ navigation }) {
-  // Estados para os valores dos campos
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  // Estados para as mensagens de erro
   const [nomeError, setNomeError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [cpfError, setCpfError] = useState("");
   const [senhaError, setSenhaError] = useState("");
   const [confirmarSenhaError, setConfirmarSenhaError] = useState("");
 
-  // Função de formatação (mantida)
   const formatarCPF = (valor) => {
     const numerosCPF = valor.replace(/\D/g, "");
     let cpfFormatado = numerosCPF;
@@ -35,21 +32,18 @@ export default function RegisterScreen({ navigation }) {
       cpfFormatado = cpfFormatado.replace(/(\d{3})(\d)/, "$1.$2");
     if (numerosCPF.length > 9)
       cpfFormatado = cpfFormatado.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    setCpf(cpfFormatado.substring(0, 14)); // Limita ao tamanho máximo 11 digitos + 3 formatadores
+    setCpf(cpfFormatado.substring(0, 14));
   };
 
-  // Função de validação e cadastro
   const handleCadastroPress = () => {
-    // 1. Limpar erros anteriores
     setNomeError("");
     setEmailError("");
     setCpfError("");
     setSenhaError("");
     setConfirmarSenhaError("");
 
-    let isValid = true; // Flag para controlar a validade geral
+    let isValid = true;
 
-    // 2. Validar campos obrigatórios
     if (!nome.trim()) {
       setNomeError("Nome completo é obrigatório.");
       isValid = false;
@@ -63,7 +57,6 @@ export default function RegisterScreen({ navigation }) {
       isValid = false;
     }
     if (!senha) {
-      // Senha não usa trim() para permitir espaços se o usuário quiser
       setSenhaError("Senha é obrigatória.");
       isValid = false;
     }
@@ -72,47 +65,31 @@ export default function RegisterScreen({ navigation }) {
       isValid = false;
     }
 
-    // 3. Validar regras específicas (só se não houver erro de campo obrigatório)
     if (isValid) {
-      // Nome Completo: Mínimo 2 caracteres
       if (nome.trim().length < 2) {
         setNomeError("Nome completo deve ter no mínimo 2 caracteres.");
         isValid = false;
       }
 
-      // Email: Formato válido (Regex simples)
       const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
       if (!emailRegex.test(email.trim())) {
         setEmailError("Formato de e-mail inválido.");
         isValid = false;
       }
 
-      // CPF: Validação real usando a biblioteca
       const cpfLimpo = cpf.replace(/\D/g, "");
       if (!cpfValidator.isValid(cpfLimpo)) {
-        // <<< Erro provavelmente aqui!
         setCpfError("CPF inválido.");
         isValid = false;
       }
 
-      // Senha: Mínimo de caracteres (exemplo: 6) - OPCIONAL, NÃO ESTAVA NO REQUISITO
-      /*
-      if (senha.length < 6) {
-          setSenhaError('Senha deve ter no mínimo 6 caracteres.');
-          isValid = false;
-      }
-      */
-
-      // Senhas coincidem
       if (senha !== confirmarSenha) {
         setConfirmarSenhaError("As senhas não coincidem.");
-        // Poderia adicionar erro em ambos os campos de senha se preferir
-        // setSenhaError('As senhas não coincidem.');
+
         isValid = false;
       }
     }
 
-    // 4. Se tudo for válido, simula o cadastro
     if (isValid) {
       console.log("Dados válidos! Tentando cadastrar:", {
         nome: nome.trim(),
@@ -123,7 +100,6 @@ export default function RegisterScreen({ navigation }) {
       Alert.alert("Sucesso", "Cadastro (simulado) realizado!", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
-      // Futuramente (Fase 2), aqui chamaremos a API backend
     } else {
       console.log("Formulário inválido. Erros:", {
         nomeError,
@@ -140,18 +116,18 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.title}>Criar Conta</Text>
 
-        {/* Input Nome */}
+        {}
         <TextInput
-          style={[styles.input, nomeError ? styles.inputError : null]} // Aplica estilo de erro
+          style={[styles.input, nomeError ? styles.inputError : null]}
           placeholder="Nome Completo"
           value={nome}
           onChangeText={setNome}
           placeholderTextColor="#888"
         />
-        {/* Exibe a mensagem de erro se existir */}
+        {}
         {nomeError ? <Text style={styles.errorText}>{nomeError}</Text> : null}
 
-        {/* Input Email */}
+        {}
         <TextInput
           style={[styles.input, emailError ? styles.inputError : null]}
           placeholder="E-mail"
@@ -164,19 +140,19 @@ export default function RegisterScreen({ navigation }) {
         />
         {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
-        {/* Input CPF */}
+        {}
         <TextInput
           style={[styles.input, cpfError ? styles.inputError : null]}
           placeholder="CPF"
           value={cpf}
-          onChangeText={formatarCPF} // Usa a formatação
+          onChangeText={formatarCPF}
           keyboardType="numeric"
           maxLength={14}
           placeholderTextColor="#888"
         />
         {cpfError ? <Text style={styles.errorText}>{cpfError}</Text> : null}
 
-        {/* Input Senha */}
+        {}
         <TextInput
           style={[styles.input, senhaError ? styles.inputError : null]}
           placeholder="Senha"
@@ -187,7 +163,7 @@ export default function RegisterScreen({ navigation }) {
         />
         {senhaError ? <Text style={styles.errorText}>{senhaError}</Text> : null}
 
-        {/* Input Confirmar Senha */}
+        {}
         <TextInput
           style={[styles.input, confirmarSenhaError ? styles.inputError : null]}
           placeholder="Confirmar Senha"
@@ -200,12 +176,12 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.errorText}>{confirmarSenhaError}</Text>
         ) : null}
 
-        {/* Botão Cadastrar */}
+        {}
         <TouchableOpacity style={styles.button} onPress={handleCadastroPress}>
           <Text style={styles.buttonText}>Cadastrar</Text>
         </TouchableOpacity>
 
-        {/* Botão Voltar */}
+        {}
         <TouchableOpacity
           style={styles.linkButton}
           onPress={() => navigation.goBack()}
@@ -219,7 +195,6 @@ export default function RegisterScreen({ navigation }) {
   );
 }
 
-// Estilos Atualizados
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
@@ -241,25 +216,25 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     borderWidth: 1,
-    borderColor: "#ddd", // Cor padrão da borda
+    borderColor: "#ddd",
     borderRadius: 8,
     paddingHorizontal: 15,
-    marginBottom: 5, // Diminuido para dar espaço ao texto de erro
+    marginBottom: 5,
     fontSize: 16,
     backgroundColor: "#fff",
   },
-  // Novo estilo para input com erro
+
   inputError: {
-    borderColor: "#dc3545", // Cor vermelha para erro
+    borderColor: "#dc3545",
   },
-  // Novo estilo para texto de erro
+
   errorText: {
-    width: "100%", // Para alinhar com o input
+    width: "100%",
     color: "#dc3545",
     fontSize: 12,
-    marginBottom: 10, // Espaço antes do próximo input
-    textAlign: "left", // Alinha texto à esquerda
-    paddingLeft: 5, // Pequeno padding
+    marginBottom: 10,
+    textAlign: "left",
+    paddingLeft: 5,
   },
   button: {
     width: "100%",
@@ -268,7 +243,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 8,
-    marginTop: 15, // Aumentado um pouco
+    marginTop: 15,
   },
   buttonText: {
     color: "#fff",

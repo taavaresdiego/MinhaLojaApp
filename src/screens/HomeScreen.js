@@ -1,24 +1,74 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import ProductItem from "../components/ProductItem";
+const API_BASE_URL = "http://192.168.1.5:4000";
 
-// Importa os dados falsos e o componente de item
-import mockProducts from "../data/mockProducts"; // Ajuste o caminho se necessário
-import ProductItem from "../components/ProductItem"; // Ajuste o caminho se necessário
-
-// Recebe 'navigation' e 'onLogout' como antes
 export default function HomeScreen({ navigation, onLogout }) {
-  // Função para renderizar o cabeçalho da lista (opcional)
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setError(null);
+        setIsLoading(true);
+
+        const token = await SecureStore.getItemAsync("userToken");
+        if (!token) {
+          Alert.alert(
+            "Erro",
+            "Sessão inválida. Por favor, faça login novamente."
+          );
+          onLogout();
+          return;
+        }
+
+        console.log("Buscando produtos em:", `${API_BASE_URL}/api/products`);
+        const response = await axios.get(`${API_BASE_URL}/api/products`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("Produtos recebidos:", response.data);
+        setProducts(response.data);
+      } catch (err) {
+        console.error(
+          "Erro ao buscar produtos:",
+          err.response?.data || err.message
+        );
+        setError("Não foi possível carregar os produtos.");
+
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          Alert.alert("Sessão Expirada", "Por favor, faça login novamente.");
+          onLogout();
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [onLogout]);
+
   const renderHeader = () => (
     <Text style={styles.title}>Produtos Disponíveis</Text>
   );
 
-  // Função para renderizar o rodapé com os botões
   const renderFooter = () => (
     <View style={styles.footerContainer}>
       <TouchableOpacity
@@ -36,18 +86,34 @@ export default function HomeScreen({ navigation, onLogout }) {
     </View>
   );
 
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" color="#007bff" />
+        <Text>Carregando produtos...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <Text style={styles.errorText}>Erro: {error}</Text>
+        {}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={mockProducts} // Nossos dados falsos
-        renderItem={({ item }) => <ProductItem product={item} />} // Como renderizar cada item
-        keyExtractor={(item) => item.id} // Chave única para cada item
-        ListHeaderComponent={renderHeader} // Adiciona um título acima da lista
-        // ListFooterComponent={renderFooter} // Adiciona os botões abaixo da lista
-        contentContainerStyle={styles.listContentContainer} // Estilo para o conteúdo da lista
-        style={styles.list} // Estilo para o container da FlatList
+        data={products}
+        renderItem={({ item }) => <ProductItem product={item} />}
+        keyExtractor={(item) => item.id.toString()}
+        ListHeaderComponent={renderHeader}
+        contentContainerStyle={styles.listContentContainer}
+        style={styles.list}
       />
-      {/* Alternativamente, colocar os botões fora da FlatList */}
       {renderFooter()}
     </View>
   );
@@ -55,15 +121,19 @@ export default function HomeScreen({ navigation, onLogout }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ocupa toda a tela
+    flex: 1,
     backgroundColor: "#f5f5f5",
   },
+  center: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
   list: {
-    flex: 1, // Permite que a lista ocupe o espaço disponível
+    flex: 1,
   },
   listContentContainer: {
-    paddingHorizontal: 15, // Espaçamento nas laterais da lista
-    paddingBottom: 20, // Espaçamento abaixo do último item
+    paddingHorizontal: 15,
+    paddingBottom: 20,
   },
   title: {
     fontSize: 24,
@@ -73,27 +143,31 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#333",
   },
-  // Estilos para os botões no rodapé (se fora da FlatList)
   footerContainer: {
     padding: 15,
     borderTopWidth: 1,
     borderTopColor: "#eee",
-    backgroundColor: "#fff", // Fundo branco para destacar os botões
+    backgroundColor: "#fff",
   },
   footerButton: {
-    backgroundColor: "#007bff", // Azul
+    backgroundColor: "#007bff",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
-    marginBottom: 10, // Espaço entre botões
+    marginBottom: 10,
   },
   logoutButton: {
-    backgroundColor: "#dc3545", // Vermelho para sair
-    marginBottom: 0, // Último botão não precisa de margem inferior
+    backgroundColor: "#dc3545",
+    marginBottom: 0,
   },
   footerButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 16,
+    textAlign: "center",
   },
 });
