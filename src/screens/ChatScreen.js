@@ -1,5 +1,3 @@
-// Arquivo: src/screens/ChatScreen.js (Atualizado com UI)
-
 import React, { useState, useCallback } from "react";
 import {
   View,
@@ -11,9 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import MessageBubble from "../components/MessageBubble"; // Importa o componente
+import MessageBubble from "../components/MessageBubble";
 
-// Dados de exemplo iniciais (simulando mensagens)
 const INITIAL_MESSAGES = [
   {
     id: "3",
@@ -35,63 +32,53 @@ const INITIAL_MESSAGES = [
   },
 ];
 
-// Simula o ID do usuário atual (em um app real, viria do contexto de autenticação)
-const CURRENT_USER_ID = "user"; // Ou qualquer identificador único
+const CURRENT_USER_ID = "user";
 
 export default function ChatScreen({ navigation }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState("");
 
-  // Função para lidar com o envio de mensagem
   const handleSend = useCallback(() => {
     if (inputText.trim().length === 0) {
-      return; // Não envia mensagem vazia
+      return;
     }
 
-    // Cria a nova mensagem do usuário
     const newMessage = {
-      id: Date.now().toString(), // Chave simples baseada no tempo
+      id: Date.now().toString(),
       text: inputText.trim(),
-      sender: CURRENT_USER_ID, // Marca como 'user'
+      sender: CURRENT_USER_ID,
       timestamp: new Date(),
     };
 
-    // Adiciona a nova mensagem no *início* do array (porque a FlatList é invertida)
     setMessages((prevMessages) => [newMessage, ...prevMessages]);
 
-    // Limpa o campo de input
     setInputText("");
+  }, [inputText]);
 
-    // Aqui, futuramente, você enviaria a mensagem para o backend ou para a IA
-    // e receberia a resposta para adicionar também com setMessages(...)
-  }, [inputText]); // Depende do inputText
-
-  // Função para renderizar cada item da FlatList
   const renderMessageItem = ({ item }) => (
     <MessageBubble
       message={item}
-      isCurrentUser={item.sender === CURRENT_USER_ID} // Passa se a mensagem é do usuário atual
+      isCurrentUser={item.sender === CURRENT_USER_ID}
     />
   );
 
   return (
-    // KeyboardAvoidingView ajusta a tela quando o teclado aparece
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"} // Comportamento diferente por OS
-      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 100} // Ajuste fino do offset
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 100}
     >
-      {/* Lista de Mensagens */}
+      {}
       <FlatList
         style={styles.messageList}
         data={messages}
         renderItem={renderMessageItem}
         keyExtractor={(item) => item.id}
-        inverted // Faz a lista começar de baixo e novas mensagens aparecerem embaixo
+        inverted
         contentContainerStyle={{ paddingVertical: 10 }}
       />
 
-      {/* Barra de Entrada */}
+      {}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -99,22 +86,21 @@ export default function ChatScreen({ navigation }) {
           onChangeText={setInputText}
           placeholder="Digite sua mensagem..."
           placeholderTextColor="#999"
-          multiline // Permite múltiplas linhas (opcional)
+          multiline
         />
         <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
           <Text style={styles.sendButtonText}>Enviar</Text>
-          {/* Poderia ser um ícone de envio */}
+          {}
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
 }
 
-// Estilos atualizados
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff", // Fundo branco para chat
+    backgroundColor: "#fff",
   },
   messageList: {
     flex: 1,
@@ -127,16 +113,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: "#eee",
-    backgroundColor: "#f5f5f5", // Fundo levemente cinza para input bar
+    backgroundColor: "#f5f5f5",
   },
   input: {
     flex: 1,
-    minHeight: 40, // Altura mínima
-    maxHeight: 120, // Altura máxima para multiline
+    minHeight: 40,
+    maxHeight: 120,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 20, // Bordas arredondadas
+    borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 10,
     fontSize: 16,
@@ -145,7 +131,7 @@ const styles = StyleSheet.create({
   sendButton: {
     backgroundColor: "#007bff",
     paddingHorizontal: 15,
-    height: 40, // Mesma altura mínima do input
+    height: 40,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",

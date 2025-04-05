@@ -130,13 +130,11 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    // ScrollView e Inputs como antes, mas adicionando editable={!isLoading}
-    // e modificando o botão de Cadastro
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
         <Text style={styles.title}>Criar Conta</Text>
 
-        {/* Inputs com editable e erros como antes... */}
+        {}
         <TextInput
           style={[styles.input, nomeError ? styles.inputError : null]}
           placeholder="Nome Completo"
@@ -196,7 +194,7 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.errorText}>{confirmarSenhaError}</Text>
         ) : null}
 
-        {/* Botão Cadastrar com Loading */}
+        {}
         <TouchableOpacity
           style={[styles.button, isLoading ? styles.buttonDisabled : null]}
           onPress={handleCadastroPress}
@@ -209,7 +207,7 @@ export default function RegisterScreen({ navigation }) {
           )}
         </TouchableOpacity>
 
-        {/* Botão Voltar (como antes) */}
+        {}
         <TouchableOpacity
           style={styles.linkButton}
           onPress={() => navigation.goBack()}
@@ -229,9 +227,7 @@ export default function RegisterScreen({ navigation }) {
   );
 }
 
-// Estilos (adicionar/ajustar estilos para buttonDisabled e linkButtonDisabled se necessário)
 const styles = StyleSheet.create({
-  /* ... estilos como antes ... */
   scrollContainer: { flexGrow: 1, justifyContent: "center" },
   container: {
     justifyContent: "center",
@@ -269,9 +265,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 15,
   },
-  buttonDisabled: { backgroundColor: "#6c757d" }, // Estilo para botão desabilitado
+  buttonDisabled: { backgroundColor: "#6c757d" },
   buttonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
   linkButton: { marginTop: 20 },
   linkButtonText: { color: "#007bff", fontSize: 16 },
-  linkButtonDisabled: { color: "#6c757d" }, // Estilo para link desabilitado
+  linkButtonDisabled: { color: "#6c757d" },
 });

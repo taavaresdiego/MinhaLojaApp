@@ -1,5 +1,3 @@
-// Arquivo: src/screens/HomeScreen.js (Atualizado com Botão de Chat)
-
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -12,9 +10,8 @@ import {
 } from "react-native";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import ProductItem from "../components/ProductItem"; // Confirme o caminho
+import ProductItem from "../components/ProductItem";
 
-// CONFIRME SEU IP E PORTA AQUI!
 const API_BASE_URL = "http://192.168.1.6:4000";
 
 export default function HomeScreen({ navigation, onLogout }) {
@@ -66,28 +63,27 @@ export default function HomeScreen({ navigation, onLogout }) {
     <Text style={styles.title}>Produtos Disponíveis</Text>
   );
 
-  // Função renderFooter atualizada com o botão de Chat
   const renderFooter = () => (
     <View style={styles.footerContainer}>
       <TouchableOpacity
         style={styles.footerButton}
-        onPress={() => navigation.navigate("Cart")} // Navega para Carrinho
+        onPress={() => navigation.navigate("Cart")}
       >
         <Text style={styles.footerButtonText}>Ver Carrinho</Text>
       </TouchableOpacity>
 
-      {/* <<< BOTÃO DE CHAT ADICIONADO >>> */}
+      {}
       <TouchableOpacity
-        style={styles.chatButton} // Estilo específico para o botão de chat
-        onPress={() => navigation.navigate("Chat")} // Navega para a tela 'Chat'
+        style={styles.chatButton}
+        onPress={() => navigation.navigate("Chat")}
       >
         <Text style={styles.footerButtonText}>Abrir Chat (Teste)</Text>
       </TouchableOpacity>
-      {/* <<< FIM DO BOTÃO DE CHAT >>> */}
+      {}
 
       <TouchableOpacity
         style={[styles.footerButton, styles.logoutButton]}
-        onPress={onLogout} // Função de Logout
+        onPress={onLogout}
       >
         <Text style={styles.footerButtonText}>Sair</Text>
       </TouchableOpacity>
@@ -107,7 +103,7 @@ export default function HomeScreen({ navigation, onLogout }) {
     return (
       <View style={[styles.container, styles.center]}>
         <Text style={styles.errorText}>Erro: {error}</Text>
-        {/* Botão Tentar Novamente (opcional) */}
+        {}
       </View>
     );
   }
@@ -122,13 +118,12 @@ export default function HomeScreen({ navigation, onLogout }) {
         contentContainerStyle={styles.listContentContainer}
         style={styles.list}
       />
-      {/* Renderiza o rodapé com os botões */}
+      {}
       {renderFooter()}
     </View>
   );
 }
 
-// Estilos atualizados com chatButton
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -137,7 +132,7 @@ const styles = StyleSheet.create({
   center: {
     justifyContent: "center",
     alignItems: "center",
-    flex: 1, // Garante que ocupe espaço para centralizar
+    flex: 1,
   },
   list: {
     flex: 1,
@@ -167,9 +162,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  // Estilo para o botão de chat
+
   chatButton: {
-    backgroundColor: "#ffc107", // Amarelo/Laranja
+    backgroundColor: "#ffc107",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",

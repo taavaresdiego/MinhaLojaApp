@@ -1,27 +1,24 @@
-// Arquivo: src/components/MessageBubble.js
-
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-// Recebe a mensagem e um booleano indicando se é do usuário atual
 export default function MessageBubble({ message, isCurrentUser }) {
   return (
     <View
       style={[
         styles.messageRow,
-        // Alinha à direita se for do usuário atual, senão à esquerda
+
         isCurrentUser ? styles.rowSent : styles.rowReceived,
       ]}
     >
       <View
         style={[
           styles.messageBubble,
-          // Cor de fundo diferente para enviado/recebido
+
           isCurrentUser ? styles.bubbleSent : styles.bubbleReceived,
         ]}
       >
         <Text style={styles.messageText}>{message.text}</Text>
-        {/* Poderia adicionar timestamp aqui depois */}
+        {}
       </View>
     </View>
   );
@@ -31,13 +28,13 @@ const styles = StyleSheet.create({
   messageRow: {
     flexDirection: "row",
     marginVertical: 5,
-    maxWidth: "80%", // Bolha não ocupa a tela inteira
+    maxWidth: "80%",
   },
   rowSent: {
-    alignSelf: "flex-end", // Alinha a linha inteira à direita
+    alignSelf: "flex-end",
   },
   rowReceived: {
-    alignSelf: "flex-start", // Alinha a linha inteira à esquerda
+    alignSelf: "flex-start",
   },
   messageBubble: {
     paddingVertical: 8,
@@ -45,19 +42,15 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   bubbleSent: {
-    backgroundColor: "#007bff", // Azul para enviado
-    borderBottomRightRadius: 5, // Ajuste de estilo
+    backgroundColor: "#007bff",
+    borderBottomRightRadius: 5,
   },
   bubbleReceived: {
-    backgroundColor: "#e5e5ea", // Cinza claro para recebido
-    borderBottomLeftRadius: 5, // Ajuste de estilo
+    backgroundColor: "#e5e5ea",
+    borderBottomLeftRadius: 5,
   },
   messageText: {
     fontSize: 15,
-    color: "#000", // Texto padrão preto (pode mudar cor para bubbleSent se quiser)
+    color: "#000",
   },
-  // Estilo opcional para texto de mensagem enviada (se quiser branco)
-  // sentText: {
-  //   color: '#fff',
-  // }
 });

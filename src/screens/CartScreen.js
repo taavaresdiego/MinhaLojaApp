@@ -1,5 +1,3 @@
-// Arquivo: src/screens/CartScreen.js (Versão Final - Conectada à API de Pedidos)
-
 import React, { useState } from "react";
 import {
   View,
