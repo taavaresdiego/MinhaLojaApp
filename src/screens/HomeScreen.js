@@ -1,3 +1,5 @@
+// Arquivo: src/screens/HomeScreen.js (Atualizado com Botão de Chat)
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -10,7 +12,9 @@ import {
 } from "react-native";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import ProductItem from "../components/ProductItem";
+import ProductItem from "../components/ProductItem"; // Confirme o caminho
+
+// CONFIRME SEU IP E PORTA AQUI!
 const API_BASE_URL = "http://192.168.1.6:4000";
 
 export default function HomeScreen({ navigation, onLogout }) {
@@ -23,7 +27,6 @@ export default function HomeScreen({ navigation, onLogout }) {
       try {
         setError(null);
         setIsLoading(true);
-
         const token = await SecureStore.getItemAsync("userToken");
         if (!token) {
           Alert.alert(
@@ -33,14 +36,10 @@ export default function HomeScreen({ navigation, onLogout }) {
           onLogout();
           return;
         }
-
         console.log("Buscando produtos em:", `${API_BASE_URL}/api/products`);
         const response = await axios.get(`${API_BASE_URL}/api/products`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         console.log("Produtos recebidos:", response.data);
         setProducts(response.data);
       } catch (err) {
@@ -49,7 +48,6 @@ export default function HomeScreen({ navigation, onLogout }) {
           err.response?.data || err.message
         );
         setError("Não foi possível carregar os produtos.");
-
         if (
           err.response &&
           (err.response.status === 401 || err.response.status === 403)
@@ -61,7 +59,6 @@ export default function HomeScreen({ navigation, onLogout }) {
         setIsLoading(false);
       }
     };
-
     fetchProducts();
   }, [onLogout]);
 
@@ -69,17 +66,28 @@ export default function HomeScreen({ navigation, onLogout }) {
     <Text style={styles.title}>Produtos Disponíveis</Text>
   );
 
+  // Função renderFooter atualizada com o botão de Chat
   const renderFooter = () => (
     <View style={styles.footerContainer}>
       <TouchableOpacity
         style={styles.footerButton}
-        onPress={() => navigation.navigate("Cart")}
+        onPress={() => navigation.navigate("Cart")} // Navega para Carrinho
       >
         <Text style={styles.footerButtonText}>Ver Carrinho</Text>
       </TouchableOpacity>
+
+      {/* <<< BOTÃO DE CHAT ADICIONADO >>> */}
+      <TouchableOpacity
+        style={styles.chatButton} // Estilo específico para o botão de chat
+        onPress={() => navigation.navigate("Chat")} // Navega para a tela 'Chat'
+      >
+        <Text style={styles.footerButtonText}>Abrir Chat (Teste)</Text>
+      </TouchableOpacity>
+      {/* <<< FIM DO BOTÃO DE CHAT >>> */}
+
       <TouchableOpacity
         style={[styles.footerButton, styles.logoutButton]}
-        onPress={onLogout}
+        onPress={onLogout} // Função de Logout
       >
         <Text style={styles.footerButtonText}>Sair</Text>
       </TouchableOpacity>
@@ -99,7 +107,7 @@ export default function HomeScreen({ navigation, onLogout }) {
     return (
       <View style={[styles.container, styles.center]}>
         <Text style={styles.errorText}>Erro: {error}</Text>
-        {}
+        {/* Botão Tentar Novamente (opcional) */}
       </View>
     );
   }
@@ -114,11 +122,13 @@ export default function HomeScreen({ navigation, onLogout }) {
         contentContainerStyle={styles.listContentContainer}
         style={styles.list}
       />
+      {/* Renderiza o rodapé com os botões */}
       {renderFooter()}
     </View>
   );
 }
 
+// Estilos atualizados com chatButton
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -127,6 +137,7 @@ const styles = StyleSheet.create({
   center: {
     justifyContent: "center",
     alignItems: "center",
+    flex: 1, // Garante que ocupe espaço para centralizar
   },
   list: {
     flex: 1,
@@ -151,6 +162,14 @@ const styles = StyleSheet.create({
   },
   footerButton: {
     backgroundColor: "#007bff",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  // Estilo para o botão de chat
+  chatButton: {
+    backgroundColor: "#ffc107", // Amarelo/Laranja
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
