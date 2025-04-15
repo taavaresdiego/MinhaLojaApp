@@ -15,14 +15,14 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import MessageBubble from "../components/MessageBubble";
 
-const API_BASE_URL = "http://192.168.1.5:4000";
+const API_BASE_URL = "http://192.168.1.8:4000";
 
 const CURRENT_USER_ID = "user";
 
 const INITIAL_MESSAGES = [
   {
     id: "ai-initial",
-    text: "Olá! Sou seu assistente IA. Pergunte sobre seus pedidos ou produtos.",
+    text: "Olá! Sou seu assistente IA. Pergunte sobre seus produtos ou pedidos.",
     sender: "ai",
     timestamp: new Date(),
   },
@@ -45,7 +45,19 @@ export default function AIChatScreen({ navigation }) {
       sender: CURRENT_USER_ID,
       timestamp: new Date(),
     };
-    setMessages((prevMessages) => [userMessage, ...prevMessages]);
+
+    if (userMessage && typeof userMessage.text !== "undefined") {
+      console.log(
+        ">> AIChat: Adicionando msg LOCAL:",
+        JSON.stringify(userMessage)
+      );
+      setMessages((prevMessages) => [userMessage, ...prevMessages]);
+    } else {
+      console.error(
+        ">> AIChat: ERRO - Mensagem LOCAL é inválida!",
+        userMessage
+      );
+    }
     setInputText("");
     setIsAiTyping(true);
 
@@ -76,7 +88,20 @@ export default function AIChatScreen({ navigation }) {
           sender: "ai",
           timestamp: new Date(),
         };
-        setMessages((prevMessages) => [aiMessage, ...prevMessages]);
+
+        if (aiMessage && typeof aiMessage.text !== "undefined") {
+          console.log(
+            ">> AIChat: Adicionando msg SUCESSO IA:",
+            JSON.stringify(aiMessage)
+          );
+          setMessages((prevMessages) => [aiMessage, ...prevMessages]);
+        } else {
+          console.error(
+            ">> AIChat: ERRO - Mensagem SUCESSO IA é inválida!",
+            aiMessage
+          );
+          throw new Error("Resposta da IA inválida recebida.");
+        }
       } else {
         throw new Error("Resposta da IA inválida recebida.");
       }
@@ -99,13 +124,26 @@ export default function AIChatScreen({ navigation }) {
       } else if (error.request) {
         displayErrorMessage = "Não foi possível conectar ao servidor de chat.";
       }
+
       const errorAiMessage = {
         id: Date.now().toString() + "-ai-err",
         text: displayErrorMessage,
         sender: "ai",
         timestamp: new Date(),
       };
-      setMessages((prevMessages) => [errorAiMessage, ...prevMessages]);
+
+      if (errorAiMessage && typeof errorAiMessage.text !== "undefined") {
+        console.log(
+          ">> AIChat: Adicionando msg ERRO IA:",
+          JSON.stringify(errorAiMessage)
+        );
+        setMessages((prevMessages) => [errorAiMessage, ...prevMessages]);
+      } else {
+        console.error(
+          ">> AIChat: ERRO - Mensagem ERRO IA é inválida!",
+          errorAiMessage
+        );
+      }
     } finally {
       setIsAiTyping(false);
     }
@@ -132,7 +170,6 @@ export default function AIChatScreen({ navigation }) {
         inverted
         contentContainerStyle={{ paddingVertical: 10 }}
       />
-
       {isAiTyping && (
         <View style={styles.typingIndicator}>
           <Text style={styles.typingText}>IA está digitando...</Text>
@@ -143,7 +180,6 @@ export default function AIChatScreen({ navigation }) {
           />
         </View>
       )}
-
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -155,10 +191,7 @@ export default function AIChatScreen({ navigation }) {
           editable={!isAiTyping}
         />
         <TouchableOpacity
-          style={[
-            styles.sendButton,
-            isAiTyping ? styles.sendButtonDisabled : null,
-          ]}
+          style={[styles.sendButton, isAiTyping ? styles.buttonDisabled : null]}
           onPress={handleSend}
           disabled={isAiTyping}
         >

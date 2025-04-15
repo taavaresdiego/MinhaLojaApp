@@ -1,5 +1,3 @@
-// Arquivo: src/screens/LiveChatScreen.js (Antigo ChatScreen.js com Socket.IO)
-
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   View,
@@ -10,23 +8,18 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
-  Alert,
 } from "react-native";
 import { io } from "socket.io-client";
-import MessageBubble from "../components/MessageBubble"; // Confirme o caminho
+import MessageBubble from "../components/MessageBubble";
 
-// ===> CONFIRME SEU IP E PORTA <===
-const API_BASE_URL = "http://192.168.1.5:4000"; // << IP ATUAL!
+const API_BASE_URL = "http://192.168.1.8:4000";
 
-// Simula ID e Nome do usuário
 const CURRENT_USER_DATA = {
   id: "user-" + Math.random().toString(16).slice(2),
   name: "Usuário Teste",
 };
 
 export default function LiveChatScreen({ navigation }) {
-  // Nome do componente atualizado
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const socketRef = useRef(null);
@@ -47,8 +40,20 @@ export default function LiveChatScreen({ navigation }) {
     );
 
     socket.on("liveChatMessage", (receivedMsg) => {
-      console.log("[Socket.IO] Mensagem recebida:", receivedMsg);
-      setMessages((prevMessages) => [receivedMsg, ...prevMessages]);
+      console.log("[Socket.IO] Mensagem recebida BRUTA:", receivedMsg);
+
+      if (receivedMsg && typeof receivedMsg.text !== "undefined") {
+        console.log(
+          ">> LiveChat: Adicionando msg RECEBIDA:",
+          JSON.stringify(receivedMsg)
+        );
+        setMessages((prevMessages) => [receivedMsg, ...prevMessages]);
+      } else {
+        console.error(
+          ">> LiveChat: ERRO - Mensagem recebida é inválida!",
+          receivedMsg
+        );
+      }
     });
 
     return () => {
@@ -67,24 +72,35 @@ export default function LiveChatScreen({ navigation }) {
       !socketRef.current ||
       !socketRef.current.connected
     ) {
-      console.log("[Socket.IO] Não conectado ou mensagem vazia. Não enviando.");
       return;
     }
+
+    const userMessageForUI = {
+      id: Date.now().toString(),
+      text: messageText,
+      sender: CURRENT_USER_DATA.id,
+      timestamp: new Date(),
+    };
+
+    if (userMessageForUI && typeof userMessageForUI.text !== "undefined") {
+      console.log(
+        ">> LiveChat: Adicionando msg LOCAL:",
+        JSON.stringify(userMessageForUI)
+      );
+      setMessages((prevMessages) => [userMessageForUI, ...prevMessages]);
+    } else {
+      console.error(
+        ">> LiveChat: ERRO - Mensagem LOCAL é inválida!",
+        userMessageForUI
+      );
+    }
+    setInputText("");
 
     const messageToSend = {
       text: messageText,
       senderId: CURRENT_USER_DATA.id,
       senderName: CURRENT_USER_DATA.name,
     };
-
-    const userMessageForUI = {
-      id: Date.now().toString(),
-      text: messageText,
-      sender: CURRENT_USER_DATA.id, // Usar 'user' ou ID para estilização local
-      timestamp: new Date(),
-    };
-    setMessages((prevMessages) => [userMessageForUI, ...prevMessages]);
-    setInputText("");
 
     console.log("[Socket.IO] Enviando mensagem:", messageToSend);
     socketRef.current.emit("liveChatMessage", messageToSend);
@@ -104,7 +120,7 @@ export default function LiveChatScreen({ navigation }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 90} // Ajuste conforme necessário
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 90}
     >
       <FlatList
         style={styles.messageList}
@@ -131,7 +147,6 @@ export default function LiveChatScreen({ navigation }) {
   );
 }
 
-// Estilos (os mesmos de antes para ChatScreen)
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   messageList: { flex: 1, paddingHorizontal: 10 },

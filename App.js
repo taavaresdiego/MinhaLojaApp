@@ -1,81 +1,125 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import * as SecureStore from "expo-secure-store";
 
-export default function MessageBubble({ message, isCurrentUser }) {
-  if (!message || typeof message.text === "undefined") {
-    console.warn(
-      "Tentativa de renderizar bolha com mensagem inválida:",
-      message
+import { CartProvider } from "./src/contexts/CartContext";
+
+// Telas
+import LoginScreen from "./src/screens/LoginScreen";
+import RegisterScreen from "./src/screens/RegisterScreen";
+import HomeScreen from "./src/screens/HomeScreen";
+import CartScreen from "./src/screens/CartScreen";
+import LiveChatScreen from "./src/screens/LiveChatScreen";
+import AIChatScreen from "./src/screens/AIChatScreen";
+
+const AuthStack = createNativeStackNavigator();
+const MainStack = createNativeStackNavigator();
+
+export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleLogin = () => {
+    console.log("[App.js] handleLogin chamado, definindo isLoggedIn = true");
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = async () => {
+    console.log("[App.js] handleLogout chamado, definindo isLoggedIn = false");
+    setIsLoading(true);
+    try {
+      await SecureStore.deleteItemAsync("userToken");
+      console.log("[App.js] Token removido no logout.");
+    } catch (e) {
+      console.error("[App.js] Erro ao remover token no logout:", e);
+    } finally {
+      setIsLoggedIn(false);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const checkToken = async () => {
+      let token = null;
+      setIsLoading(true); // Garante loading ao verificar
+      try {
+        token = await SecureStore.getItemAsync("userToken");
+        if (token) {
+          console.log("[App.js] Token encontrado na inicialização.");
+          setIsLoggedIn(true);
+        } else {
+          console.log("[App.js] Nenhum token encontrado na inicialização.");
+          setIsLoggedIn(false);
+        }
+      } catch (e) {
+        console.error("[App.js] Erro ao buscar token inicial:", e);
+        setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkToken();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
     );
-    return null;
   }
 
-  const senderName = message.senderName || null;
-
   return (
-    <View
-      style={[
-        styles.messageRow,
-        isCurrentUser ? styles.rowSent : styles.rowReceived,
-      ]}
-    >
-      <View
-        style={[
-          styles.messageBubble,
-          isCurrentUser ? styles.bubbleSent : styles.bubbleReceived,
-        ]}
-      >
-        {!isCurrentUser && senderName && (
-          <Text style={styles.senderName}>{senderName}</Text>
+    <NavigationContainer>
+      <CartProvider>
+        {isLoggedIn ? (
+          <MainStack.Navigator>
+            <MainStack.Screen
+              name="Home"
+              children={(props) => (
+                <HomeScreen {...props} onLogout={handleLogout} />
+              )}
+              options={{ title: "Produtos" }}
+            />
+            <MainStack.Screen
+              name="Cart"
+              component={CartScreen}
+              options={{ title: "Meu Carrinho" }}
+            />
+            <MainStack.Screen
+              name="LiveChat"
+              component={LiveChatScreen}
+              options={{ title: "Chat Live" }}
+            />
+            <MainStack.Screen
+              name="AIChat"
+              component={AIChatScreen}
+              options={{ title: "Assistente IA" }}
+            />
+          </MainStack.Navigator>
+        ) : (
+          <AuthStack.Navigator initialRouteName="Login">
+            <AuthStack.Screen
+              name="Login"
+              children={(props) => (
+                <LoginScreen {...props} onLogin={handleLogin} />
+              )}
+              options={{ headerShown: false }}
+            />
+            <AuthStack.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{ title: "Criar Conta" }}
+            />
+          </AuthStack.Navigator>
         )}
-
-        <Text style={isCurrentUser ? styles.sentText : styles.receivedText}>
-          {message.text}
-        </Text>
-      </View>
-    </View>
+      </CartProvider>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  messageRow: {
-    flexDirection: "row",
-    marginVertical: 4,
-    maxWidth: "80%",
-  },
-  rowSent: {
-    alignSelf: "flex-end",
-  },
-  rowReceived: {
-    alignSelf: "flex-start",
-  },
-  messageBubble: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    elevation: 1,
-  },
-  bubbleSent: {
-    backgroundColor: "#007bff",
-    borderBottomRightRadius: 5,
-  },
-  bubbleReceived: {
-    backgroundColor: "#e5e5ea",
-    borderBottomLeftRadius: 5,
-  },
-  senderName: {
-    fontSize: 11,
-    color: "#555",
-    fontWeight: "bold",
-    marginBottom: 3,
-    marginLeft: 2,
-  },
-  sentText: {
-    fontSize: 15,
-    color: "#fff",
-  },
-  receivedText: {
-    fontSize: 15,
-    color: "#000",
-  },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
 });

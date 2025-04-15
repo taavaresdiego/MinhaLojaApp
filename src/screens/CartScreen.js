@@ -13,7 +13,7 @@ import * as SecureStore from "expo-secure-store";
 import { useCart } from "../contexts/CartContext";
 import CartItem from "../components/CartItem";
 
-const API_BASE_URL = "http://192.168.1.5:4000";
+const API_BASE_URL = "http://192.168.1.8:4000";
 
 export default function CartScreen({ navigation }) {
   const { cartItems, getCartTotal, clearCart } = useCart();
