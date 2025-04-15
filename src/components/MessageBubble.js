@@ -2,23 +2,36 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 export default function MessageBubble({ message, isCurrentUser }) {
+  if (!message || typeof message.text === "undefined") {
+    console.warn(
+      "Tentativa de renderizar bolha com mensagem inválida:",
+      message
+    );
+    return null;
+  }
+
+  const senderName = message.senderName || null;
+
   return (
     <View
       style={[
         styles.messageRow,
-
         isCurrentUser ? styles.rowSent : styles.rowReceived,
       ]}
     >
       <View
         style={[
           styles.messageBubble,
-
           isCurrentUser ? styles.bubbleSent : styles.bubbleReceived,
         ]}
       >
-        <Text style={styles.messageText}>{message.text}</Text>
-        {}
+        {!isCurrentUser && senderName && (
+          <Text style={styles.senderName}>{senderName}</Text>
+        )}
+
+        <Text style={isCurrentUser ? styles.sentText : styles.receivedText}>
+          {message.text}
+        </Text>
       </View>
     </View>
   );
@@ -27,7 +40,7 @@ export default function MessageBubble({ message, isCurrentUser }) {
 const styles = StyleSheet.create({
   messageRow: {
     flexDirection: "row",
-    marginVertical: 5,
+    marginVertical: 4,
     maxWidth: "80%",
   },
   rowSent: {
@@ -40,6 +53,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 15,
+    elevation: 1,
   },
   bubbleSent: {
     backgroundColor: "#007bff",
@@ -49,7 +63,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#e5e5ea",
     borderBottomLeftRadius: 5,
   },
-  messageText: {
+  senderName: {
+    fontSize: 11,
+    color: "#555",
+    fontWeight: "bold",
+    marginBottom: 3,
+    marginLeft: 2,
+  },
+  sentText: {
+    fontSize: 15,
+    color: "#fff",
+  },
+  receivedText: {
     fontSize: 15,
     color: "#000",
   },

@@ -12,7 +12,7 @@ import {
 import { cpf as cpfValidator } from "cpf";
 import axios from "axios";
 
-const API_BASE_URL = "http://192.168.1.6:4000";
+const API_BASE_URL = "http://192.168.1.5:4000";
 
 export default function RegisterScreen({ navigation }) {
   const [nome, setNome] = useState("");

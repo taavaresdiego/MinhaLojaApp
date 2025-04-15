@@ -11,7 +11,7 @@ import {
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const API_BASE_URL = "http://192.168.1.6:4000";
+const API_BASE_URL = "http://192.168.1.5:4000";
 
 export default function LoginScreen({ navigation, onLogin }) {
   const [email, setEmail] = useState("");
@@ -24,7 +24,6 @@ export default function LoginScreen({ navigation, onLogin }) {
     setEmailError("");
     setSenhaError("");
     let isValid = true;
-
     if (!email.trim()) {
       setEmailError("E-mail é obrigatório.");
       isValid = false;
@@ -33,16 +32,14 @@ export default function LoginScreen({ navigation, onLogin }) {
       setSenhaError("Senha é obrigatória.");
       isValid = false;
     }
-
     if (!isValid) {
       return;
     }
 
     setIsLoading(true);
-
     try {
       console.log(
-        `Tentando login para ${email.trim()} em ${API_BASE_URL}/api/auth/login`
+        `[LoginScreen] Tentando login para ${email.trim()} em ${API_BASE_URL}/api/auth/login`
       );
       const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email: email.trim(),
@@ -51,13 +48,13 @@ export default function LoginScreen({ navigation, onLogin }) {
 
       const { token, user } = response.data;
       console.log(
-        "Login bem-sucedido, token:",
+        "[LoginScreen] Login bem-sucedido, token:",
         token ? "Token recebido" : "Token NÃO recebido!"
       );
 
       if (token) {
         await SecureStore.setItemAsync("userToken", token);
-        console.log("Token armazenado com sucesso.");
+        console.log("[LoginScreen] Token armazenado com sucesso.");
 
         onLogin();
       } else {
@@ -65,7 +62,7 @@ export default function LoginScreen({ navigation, onLogin }) {
       }
     } catch (error) {
       console.error(
-        "Erro no login:",
+        "[LoginScreen] Erro no login:",
         error.response?.data?.message || error.message
       );
       if (
@@ -77,7 +74,7 @@ export default function LoginScreen({ navigation, onLogin }) {
       } else {
         Alert.alert(
           "Erro de Conexão",
-          "Não foi possível conectar ao servidor. Verifique sua rede ou tente mais tarde."
+          "Não foi possível conectar ao servidor."
         );
       }
     } finally {
@@ -88,7 +85,6 @@ export default function LoginScreen({ navigation, onLogin }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Entrar</Text>
-
       <TextInput
         style={[styles.input, emailError ? styles.inputError : null]}
         placeholder="Seu e-mail"
@@ -100,11 +96,9 @@ export default function LoginScreen({ navigation, onLogin }) {
         placeholderTextColor="#888"
         editable={!isLoading}
       />
-      {}
       {emailError && !senhaError ? (
         <Text style={styles.errorText}>{emailError}</Text>
       ) : null}
-
       <TextInput
         style={[styles.input, senhaError ? styles.inputError : null]}
         placeholder="Sua senha"
@@ -115,8 +109,6 @@ export default function LoginScreen({ navigation, onLogin }) {
         editable={!isLoading}
       />
       {senhaError ? <Text style={styles.errorText}>{senhaError}</Text> : null}
-
-      {}
       <TouchableOpacity
         style={[styles.button, isLoading ? styles.buttonDisabled : null]}
         onPress={handleEntrarPress}
@@ -128,7 +120,6 @@ export default function LoginScreen({ navigation, onLogin }) {
           <Text style={styles.buttonText}>Entrar</Text>
         )}
       </TouchableOpacity>
-
       <TouchableOpacity
         style={styles.linkButton}
         onPress={() => navigation.navigate("Register")}
@@ -155,12 +146,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#f5f5f5",
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 30,
-    color: "#333",
-  },
+  title: { fontSize: 28, fontWeight: "bold", marginBottom: 30, color: "#333" },
   input: {
     width: "100%",
     height: 50,
@@ -172,9 +158,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#fff",
   },
-  inputError: {
-    borderColor: "#dc3545",
-  },
+  inputError: { borderColor: "#dc3545" },
   errorText: {
     width: "100%",
     color: "#dc3545",
@@ -192,16 +176,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 15,
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  linkButton: {
-    marginTop: 20,
-  },
-  linkButtonText: {
-    color: "#007bff",
-    fontSize: 16,
-  },
+  buttonDisabled: { backgroundColor: "#6c757d" },
+  buttonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  linkButton: { marginTop: 20 },
+  linkButtonText: { color: "#007bff", fontSize: 16 },
+  linkButtonDisabled: { color: "#6c757d" },
 });

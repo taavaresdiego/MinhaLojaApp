@@ -1,0 +1,215 @@
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import MessageBubble from "../components/MessageBubble";
+
+const API_BASE_URL = "http://192.168.1.5:4000";
+
+const CURRENT_USER_ID = "user";
+
+const INITIAL_MESSAGES = [
+  {
+    id: "ai-initial",
+    text: "Olá! Sou seu assistente IA. Pergunte sobre seus pedidos ou produtos.",
+    sender: "ai",
+    timestamp: new Date(),
+  },
+];
+
+export default function AIChatScreen({ navigation }) {
+  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [inputText, setInputText] = useState("");
+  const [isAiTyping, setIsAiTyping] = useState(false);
+
+  const handleSend = useCallback(async () => {
+    const messageText = inputText.trim();
+    if (messageText.length === 0) {
+      return;
+    }
+
+    const userMessage = {
+      id: Date.now().toString(),
+      text: messageText,
+      sender: CURRENT_USER_ID,
+      timestamp: new Date(),
+    };
+    setMessages((prevMessages) => [userMessage, ...prevMessages]);
+    setInputText("");
+    setIsAiTyping(true);
+
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      if (!token) {
+        Alert.alert("Autenticação Necessária", "Token não encontrado.");
+        setIsAiTyping(false);
+        return;
+      }
+
+      console.log(`[AIChat UI] Enviando para ${API_BASE_URL}/api/chat/ai:`, {
+        message: messageText,
+      });
+      const response = await axios.post(
+        `${API_BASE_URL}/api/chat/ai`,
+        { message: messageText },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const aiResponseData = response.data;
+      console.log("[AIChat UI] Resposta REAL da IA recebida:", aiResponseData);
+
+      if (aiResponseData && aiResponseData.text) {
+        const aiMessage = {
+          id: Date.now().toString() + "-ai",
+          text: aiResponseData.text,
+          sender: "ai",
+          timestamp: new Date(),
+        };
+        setMessages((prevMessages) => [aiMessage, ...prevMessages]);
+      } else {
+        throw new Error("Resposta da IA inválida recebida.");
+      }
+    } catch (error) {
+      console.error(
+        "[AIChat UI] Erro ao chamar API de chat AI:",
+        error.response?.data || error.message
+      );
+      let displayErrorMessage =
+        "Desculpe, não consegui processar sua mensagem agora.";
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 403)
+      ) {
+        displayErrorMessage = "Sessão expirada/inválida. Faça login.";
+      } else if (error.response) {
+        displayErrorMessage = `Erro do servidor: ${
+          error.response.data?.message || "Tente novamente."
+        }`;
+      } else if (error.request) {
+        displayErrorMessage = "Não foi possível conectar ao servidor de chat.";
+      }
+      const errorAiMessage = {
+        id: Date.now().toString() + "-ai-err",
+        text: displayErrorMessage,
+        sender: "ai",
+        timestamp: new Date(),
+      };
+      setMessages((prevMessages) => [errorAiMessage, ...prevMessages]);
+    } finally {
+      setIsAiTyping(false);
+    }
+  }, [inputText]);
+
+  const renderMessageItem = ({ item }) => (
+    <MessageBubble
+      message={item}
+      isCurrentUser={item.sender === CURRENT_USER_ID}
+    />
+  );
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 90}
+    >
+      <FlatList
+        style={styles.messageList}
+        data={messages}
+        renderItem={renderMessageItem}
+        keyExtractor={(item) => item.id.toString()}
+        inverted
+        contentContainerStyle={{ paddingVertical: 10 }}
+      />
+
+      {isAiTyping && (
+        <View style={styles.typingIndicator}>
+          <Text style={styles.typingText}>IA está digitando...</Text>
+          <ActivityIndicator
+            size="small"
+            color="#999"
+            style={{ marginLeft: 5 }}
+          />
+        </View>
+      )}
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder="Pergunte ao Assistente IA..."
+          placeholderTextColor="#999"
+          multiline
+          editable={!isAiTyping}
+        />
+        <TouchableOpacity
+          style={[
+            styles.sendButton,
+            isAiTyping ? styles.sendButtonDisabled : null,
+          ]}
+          onPress={handleSend}
+          disabled={isAiTyping}
+        >
+          <Text style={styles.sendButtonText}>Enviar</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#fff" },
+  messageList: { flex: 1, paddingHorizontal: 10 },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    backgroundColor: "#f5f5f5",
+  },
+  input: {
+    flex: 1,
+    minHeight: 40,
+    maxHeight: 120,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    fontSize: 16,
+    marginRight: 10,
+  },
+  sendButton: {
+    backgroundColor: "#007bff",
+    paddingHorizontal: 15,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sendButtonDisabled: { backgroundColor: "#6c757d" },
+  sendButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  typingIndicator: {
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    backgroundColor: "#f0f0f0",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  typingText: { fontSize: 12, color: "#888", fontStyle: "italic" },
+});

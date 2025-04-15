@@ -1,66 +1,81 @@
-import React, { useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
-import LoginScreen from "./src/screens/LoginScreen";
-import RegisterScreen from "./src/screens/RegisterScreen";
-import HomeScreen from "./src/screens/HomeScreen";
-import CartScreen from "./src/screens/CartScreen";
+export default function MessageBubble({ message, isCurrentUser }) {
+  if (!message || typeof message.text === "undefined") {
+    console.warn(
+      "Tentativa de renderizar bolha com mensagem inválida:",
+      message
+    );
+    return null;
+  }
 
-import { CartProvider } from "./src/contexts/CartContext";
-
-import ChatScreen from "./src/screens/ChatScreen";
-
-const AuthStack = createNativeStackNavigator();
-const MainStack = createNativeStackNavigator();
-
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
+  const senderName = message.senderName || null;
 
   return (
-    <NavigationContainer>
-      <CartProvider>
-        {isLoggedIn ? (
-          <MainStack.Navigator>
-            <MainStack.Screen
-              name="Home"
-              children={(props) => (
-                <HomeScreen {...props} onLogout={handleLogout} />
-              )}
-              options={{ title: "Produtos" }}
-            />
-            <MainStack.Screen
-              name="Cart"
-              component={CartScreen}
-              options={{ title: "Meu Carrinho" }}
-            />
-            {}
-            <MainStack.Screen
-              name="Chat"
-              component={ChatScreen}
-              options={{ title: "Chat / Ajuda" }}
-            />
-          </MainStack.Navigator>
-        ) : (
-          <AuthStack.Navigator initialRouteName="Login">
-            <MainStack.Screen
-              name="Login"
-              children={(props) => (
-                <LoginScreen {...props} onLogin={handleLogin} />
-              )}
-              options={{ headerShown: false }}
-            />
-            <AuthStack.Screen
-              name="Register"
-              component={RegisterScreen}
-              options={{ title: "Criar Conta" }}
-            />
-          </AuthStack.Navigator>
+    <View
+      style={[
+        styles.messageRow,
+        isCurrentUser ? styles.rowSent : styles.rowReceived,
+      ]}
+    >
+      <View
+        style={[
+          styles.messageBubble,
+          isCurrentUser ? styles.bubbleSent : styles.bubbleReceived,
+        ]}
+      >
+        {!isCurrentUser && senderName && (
+          <Text style={styles.senderName}>{senderName}</Text>
         )}
-      </CartProvider>
-    </NavigationContainer>
+
+        <Text style={isCurrentUser ? styles.sentText : styles.receivedText}>
+          {message.text}
+        </Text>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  messageRow: {
+    flexDirection: "row",
+    marginVertical: 4,
+    maxWidth: "80%",
+  },
+  rowSent: {
+    alignSelf: "flex-end",
+  },
+  rowReceived: {
+    alignSelf: "flex-start",
+  },
+  messageBubble: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 15,
+    elevation: 1,
+  },
+  bubbleSent: {
+    backgroundColor: "#007bff",
+    borderBottomRightRadius: 5,
+  },
+  bubbleReceived: {
+    backgroundColor: "#e5e5ea",
+    borderBottomLeftRadius: 5,
+  },
+  senderName: {
+    fontSize: 11,
+    color: "#555",
+    fontWeight: "bold",
+    marginBottom: 3,
+    marginLeft: 2,
+  },
+  sentText: {
+    fontSize: 15,
+    color: "#fff",
+  },
+  receivedText: {
+    fontSize: 15,
+    color: "#000",
+  },
+});
