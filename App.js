@@ -43,7 +43,7 @@ export default function App() {
   useEffect(() => {
     const checkToken = async () => {
       let token = null;
-      setIsLoading(true); // Garante loading ao verificar
+      setIsLoading(true);
       try {
         token = await SecureStore.getItemAsync("userToken");
         if (token) {

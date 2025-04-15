@@ -60,7 +60,7 @@ export default function CartScreen({ navigation }) {
             text: "OK",
             onPress: () => {
               clearCart();
-              navigation.navigate("Home"); //
+              navigation.navigate("Home");
             },
           },
         ]
@@ -150,8 +150,13 @@ export default function CartScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
-  list: { flex: 1 },
+  container: {
+    flex: 1,
+    backgroundColor: "#141414",
+  },
+  list: {
+    flex: 1,
+  },
   listContentContainer: {
     padding: 15,
     paddingBottom: 10,
@@ -162,38 +167,49 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  emptyCartText: { fontSize: 18, color: "#666", marginBottom: 20 },
+  emptyCartText: {
+    fontSize: 18,
+    color: "#808080",
+    marginBottom: 20,
+    textAlign: "center",
+  },
   continueShoppingButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#E50914",
     paddingVertical: 12,
     paddingHorizontal: 25,
-    borderRadius: 8,
+    borderRadius: 5,
   },
   continueShoppingButtonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "bold",
   },
   summaryContainer: {
     padding: 15,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
-    backgroundColor: "#fff",
+    borderTopColor: "#333333",
+    backgroundColor: "#1F1F1F",
   },
   totalText: {
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "right",
     marginBottom: 15,
-    color: "#333",
+    color: "#E5E5E5",
   },
   finalizeButton: {
-    backgroundColor: "#28a745",
+    backgroundColor: "#E50914",
     paddingVertical: 15,
-    borderRadius: 8,
+    borderRadius: 5,
     alignItems: "center",
     minHeight: 50,
   },
-  finalizeButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
-  buttonDisabled: { backgroundColor: "#6c757d" },
+  finalizeButtonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  buttonDisabled: {
+    backgroundColor: "#555555",
+  },
 });

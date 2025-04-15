@@ -40,42 +40,43 @@ export default function MessageBubble({ message, isCurrentUser }) {
 const styles = StyleSheet.create({
   messageRow: {
     flexDirection: "row",
-    marginVertical: 4,
-    maxWidth: "80%",
+    marginVertical: 5,
+    maxWidth: "85%",
   },
   rowSent: {
     alignSelf: "flex-end",
+    marginRight: 10,
   },
   rowReceived: {
     alignSelf: "flex-start",
+    marginLeft: 10,
   },
   messageBubble: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    elevation: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 18,
   },
   bubbleSent: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#2C2C2C",
     borderBottomRightRadius: 5,
   },
   bubbleReceived: {
-    backgroundColor: "#e5e5ea",
+    backgroundColor: "#424242",
     borderBottomLeftRadius: 5,
   },
   senderName: {
-    fontSize: 11,
-    color: "#555",
+    fontSize: 12,
+    color: "#B3B3B3",
     fontWeight: "bold",
-    marginBottom: 3,
+    marginBottom: 4,
     marginLeft: 2,
   },
   sentText: {
     fontSize: 15,
-    color: "#fff",
+    color: "#E5E5E5",
   },
   receivedText: {
     fontSize: 15,
-    color: "#000",
+    color: "#E5E5E5",
   },
 });

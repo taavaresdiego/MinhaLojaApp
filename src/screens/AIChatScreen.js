@@ -202,47 +202,67 @@ export default function AIChatScreen({ navigation }) {
   );
 }
 
+// ... (importações e lógica do componente)
+
+// SUBSTITUA O styles EXISTENTE POR ESTE:
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  messageList: { flex: 1, paddingHorizontal: 10 },
+  container: {
+    flex: 1,
+    backgroundColor: "#141414",
+  },
+  messageList: {
+    flex: 1,
+    paddingHorizontal: 0,
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
-    backgroundColor: "#f5f5f5",
+    borderTopColor: "#333333",
+    backgroundColor: "#1F1F1F",
   },
   input: {
     flex: 1,
-    minHeight: 40,
+    minHeight: 45,
     maxHeight: 120,
-    backgroundColor: "#fff",
+    backgroundColor: "#333333",
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 20,
+    borderColor: "#424242",
+    borderRadius: 22,
     paddingHorizontal: 15,
     paddingVertical: 10,
     fontSize: 16,
     marginRight: 10,
+    color: "#E5E5E5",
   },
   sendButton: {
-    backgroundColor: "#007bff",
-    paddingHorizontal: 15,
-    height: 40,
-    borderRadius: 20,
+    backgroundColor: "#E50914",
+    paddingHorizontal: 18,
+    height: 45,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
   },
-  sendButtonDisabled: { backgroundColor: "#6c757d" },
-  sendButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  sendButtonDisabled: {
+    backgroundColor: "#555555",
+  },
+  sendButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
   typingIndicator: {
     paddingHorizontal: 15,
-    paddingVertical: 5,
-    backgroundColor: "#f0f0f0",
+    paddingVertical: 8,
+    backgroundColor: "#1F1F1F",
     flexDirection: "row",
     alignItems: "center",
   },
-  typingText: { fontSize: 12, color: "#888", fontStyle: "italic" },
+  typingText: {
+    fontSize: 13,
+    color: "#808080",
+    fontStyle: "italic",
+  },
 });

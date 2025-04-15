@@ -7,12 +7,18 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Dimensions,
 } from "react-native";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import ProductItem from "../components/ProductItem";
-
+import MovieItem from "../components/MovieItem";
 const API_BASE_URL = "http://192.168.1.8:4000";
+
+const { width } = Dimensions.get("window");
+const numColumns = 2;
+const itemPadding = 10;
+const itemWidth = (width - itemPadding * (numColumns + 1)) / numColumns;
+item;
 
 export default function HomeScreen({ navigation, onLogout }) {
   const [products, setProducts] = useState([]);
@@ -36,18 +42,21 @@ export default function HomeScreen({ navigation, onLogout }) {
           else console.error("onLogout não foi passado para HomeScreen");
           return;
         }
-        console.log("[HomeScreen] Buscando produtos com token...");
+        console.log("[HomeScreen] Buscando 'produtos' (filmes) com token...");
         const response = await axios.get(`${API_BASE_URL}/api/products`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("[HomeScreen] Produtos recebidos:", response.data.length);
+        console.log(
+          "[HomeScreen] 'Produtos' (filmes) recebidos:",
+          response.data.length
+        );
         setProducts(response.data);
       } catch (err) {
         console.error(
-          "[HomeScreen] Erro ao buscar produtos:",
+          "[HomeScreen] Erro ao buscar 'produtos' (filmes):",
           err.response?.data || err.message
         );
-        setError("Não foi possível carregar os produtos.");
+        setError("Não foi possível carregar os filmes.");
         if (
           err.response &&
           (err.response.status === 401 || err.response.status === 403)
@@ -64,7 +73,7 @@ export default function HomeScreen({ navigation, onLogout }) {
   }, [onLogout]);
 
   const renderHeader = () => (
-    <Text style={styles.title}>Produtos Disponíveis</Text>
+    <Text style={styles.title}>Filmes Disponíveis</Text>
   );
 
   const renderFooter = () => (
@@ -99,8 +108,8 @@ export default function HomeScreen({ navigation, onLogout }) {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#007bff" />
-        <Text>Carregando produtos...</Text>
+        <ActivityIndicator size="large" color="#E50914" />
+        <Text style={styles.loadingText}>Carregando filmes...</Text>
       </View>
     );
   }
@@ -115,58 +124,92 @@ export default function HomeScreen({ navigation, onLogout }) {
     <View style={styles.container}>
       <FlatList
         data={products}
-        renderItem={({ item }) => <ProductItem product={item} />}
+        renderItem={({ item }) => (
+          <MovieItem product={item} itemWidth={itemWidth} />
+        )}
         keyExtractor={(item) => item.id.toString()}
         ListHeaderComponent={renderHeader}
+        numColumns={numColumns}
         contentContainerStyle={styles.listContentContainer}
         style={styles.list}
+        columnWrapperStyle={styles.row}
       />
+      {}
       {renderFooter()}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  list: { flex: 1 },
-  listContentContainer: { paddingHorizontal: 15, paddingBottom: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: "#141414",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#141414",
+  },
+  list: {
+    flex: 1,
+  },
+  listContentContainer: {
+    paddingHorizontal: itemPadding / 2,
+    paddingBottom: 20,
+  },
+  row: {},
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginTop: 20,
     marginBottom: 15,
     textAlign: "center",
-    color: "#333",
+    color: "#E5E5E5",
   },
   footerContainer: {
     padding: 15,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
-    backgroundColor: "#fff",
+    borderTopColor: "#333333",
+    backgroundColor: "#1F1F1F",
   },
   footerButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#333333",
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 5,
     alignItems: "center",
     marginBottom: 10,
   },
   chatButton: {
-    backgroundColor: "#17a2b8",
+    backgroundColor: "#333333",
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 5,
     alignItems: "center",
     marginBottom: 10,
   },
   aiChatButton: {
-    backgroundColor: "#ffc107",
+    backgroundColor: "#333333",
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 5,
     alignItems: "center",
     marginBottom: 10,
   },
-  logoutButton: { backgroundColor: "#dc3545", marginBottom: 0 },
-  footerButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  errorText: { color: "red", fontSize: 16, textAlign: "center" },
+  logoutButton: {
+    backgroundColor: "#E50914",
+    marginBottom: 0,
+  },
+  footerButtonText: {
+    color: "#E5E5E5",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  loadingText: {
+    marginTop: 10,
+    color: "#E5E5E5",
+  },
+  errorText: {
+    color: "#E87C03",
+    fontSize: 16,
+    textAlign: "center",
+  },
 });

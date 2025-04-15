@@ -45,8 +45,46 @@ export default function RegisterScreen({ navigation }) {
     console.log("--- [FRONTEND] Iniciando handleCadastroPress ---");
 
     setNomeError("");
+    setEmailError("");
+    setCpfError("");
+    setSenhaError("");
+    setConfirmarSenhaError("");
 
     let isValid = true;
+
+    if (!nome.trim()) {
+      setNomeError("Nome completo é obrigatório.");
+      isValid = false;
+    }
+    if (!email.trim()) {
+      setEmailError("E-mail é obrigatório.");
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError("Formato de e-mail inválido.");
+      isValid = false;
+    }
+    const cpfNumeros = cpf.replace(/\D/g, "");
+    if (!cpfNumeros) {
+      setCpfError("CPF é obrigatório.");
+      isValid = false;
+    } else if (!cpfValidator.isValid(cpfNumeros)) {
+      setCpfError("CPF inválido.");
+      isValid = false;
+    }
+    if (!senha) {
+      setSenhaError("Senha é obrigatória.");
+      isValid = false;
+    } else if (senha.length < 6) {
+      setSenhaError("Senha deve ter no mínimo 6 caracteres.");
+      isValid = false;
+    }
+    if (!confirmarSenha) {
+      setConfirmarSenhaError("Confirmação de senha é obrigatória.");
+      isValid = false;
+    } else if (senha !== confirmarSenha) {
+      setConfirmarSenhaError("As senhas não coincidem.");
+      isValid = false;
+    }
 
     if (!isValid) {
       console.log("--- [FRONTEND] Validação local FALHOU ---");
@@ -134,7 +172,6 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.title}>Criar Conta</Text>
 
-        {}
         <TextInput
           style={[styles.input, nomeError ? styles.inputError : null]}
           placeholder="Nome Completo"
@@ -194,7 +231,6 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.errorText}>{confirmarSenhaError}</Text>
         ) : null}
 
-        {}
         <TouchableOpacity
           style={[styles.button, isLoading ? styles.buttonDisabled : null]}
           onPress={handleCadastroPress}
@@ -207,7 +243,6 @@ export default function RegisterScreen({ navigation }) {
           )}
         </TouchableOpacity>
 
-        {}
         <TouchableOpacity
           style={styles.linkButton}
           onPress={() => navigation.goBack()}
@@ -228,30 +263,43 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: { flexGrow: 1, justifyContent: "center" },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    backgroundColor: "#141414",
+  },
   container: {
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#f5f5f5",
+    paddingBottom: 40,
+    backgroundColor: "#141414",
   },
-  title: { fontSize: 28, fontWeight: "bold", marginBottom: 30, color: "#333" },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 30,
+    color: "#E5E5E5",
+  },
   input: {
     width: "100%",
     height: 50,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
+    backgroundColor: "#333333",
+    borderRadius: 5,
     paddingHorizontal: 15,
     marginBottom: 5,
     fontSize: 16,
-    backgroundColor: "#fff",
+    color: "#E5E5E5",
+    borderWidth: 1,
+    borderColor: "#424242",
   },
-  inputError: { borderColor: "#dc3545" },
+  inputError: {
+    borderColor: "#E50914",
+  },
   errorText: {
     width: "100%",
-    color: "#dc3545",
-    fontSize: 12,
+    color: "#E87C03",
+    fontSize: 13,
     marginBottom: 10,
     textAlign: "left",
     paddingLeft: 5,
@@ -259,15 +307,28 @@ const styles = StyleSheet.create({
   button: {
     width: "100%",
     height: 50,
-    backgroundColor: "#28a745",
+    backgroundColor: "#E50914",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 8,
-    marginTop: 15,
+    borderRadius: 5,
+    marginTop: 20,
   },
-  buttonDisabled: { backgroundColor: "#6c757d" },
-  buttonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
-  linkButton: { marginTop: 20 },
-  linkButtonText: { color: "#007bff", fontSize: 16 },
-  linkButtonDisabled: { color: "#6c757d" },
+  buttonDisabled: {
+    backgroundColor: "#555555",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  linkButton: {
+    marginTop: 25,
+  },
+  linkButtonText: {
+    color: "#B3B3B3",
+    fontSize: 16,
+  },
+  linkButtonDisabled: {
+    color: "#555555",
+  },
 });
